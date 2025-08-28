@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head(title='Sản phẩm')}">
+    <title>Sản phẩm - Cửa hàng máy tính</title>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    
+    <!-- Alert Messages -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3 mb-4">
+                <div class="category-sidebar">
+                    <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Bộ lọc</h5>
+                    
+                    <!-- Search -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Tìm kiếm</label>
+                        <form th:action="@{/products}" method="get">
+                            <input type="hidden" name="page" value="0">
+                            <input type="hidden" name="size" th:value="${pageSize}">
+                            <input type="hidden" name="sort" th:value="${sortField}">
+                            <input type="hidden" name="direction" th:value="${sortDirection}">
+                            <input type="hidden" name="categoryId" th:value="${selectedCategory?.id}">
+                            
+                            <div class="input-group">
+                                <input type="text" name="keyword" class="form-control" 
+                                       placeholder="Tìm kiếm sản phẩm..." th:value="${keyword}">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Categories -->
+                    <div class="mb-4" th:if="${categories != null and !categories.isEmpty()}">
+                        <label class="form-label fw-bold">Danh mục</label>
+                        <div class="list-group">
+                            <a href="/products" th:href="@{/products}" 
+                               class="list-group-item list-group-item-action"
+                               th:classappend="${selectedCategory == null} ? 'active' : ''">
+                                Tất cả danh mục
+                            </a>
+                            <a th:each="category : ${categories}"
+                               th:href="@{/category/{id}(id=${category.id})}"
+                               class="list-group-item list-group-item-action"
+                               th:classappend="${selectedCategory != null and selectedCategory.id == category.id} ? 'active' : ''"
+                               th:text="${category.name}">
+                                Category Name
+                            </a>
+                        </div>
+                    </div>
+                      <!-- Price Range -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Khoảng giá</label>
+                        <form th:action="@{/products}" method="get">
+                            <input type="hidden" name="page" value="0">
+                            <input type="hidden" name="size" th:value="${pageSize}">
+                            <input type="hidden" name="sort" th:value="${sortField}">
+                            <input type="hidden" name="direction" th:value="${sortDirection}">
+                            <input type="hidden" name="categoryId" th:value="${selectedCategory?.id}">
+                            <input type="hidden" name="keyword" th:value="${keyword}">
+                            
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" name="minPrice" class="form-control form-control-sm" 
+                                           placeholder="Tối thiểu" th:value="${minPrice}" min="0" step="0.01">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="maxPrice" class="form-control form-control-sm" 
+                                           placeholder="Tối đa" th:value="${maxPrice}" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary btn-sm mt-2 w-100">
+                                Áp dụng bộ lọc
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products -->
+            <div class="col-lg-9">                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 th:if="${selectedCategory != null}" th:text="${selectedCategory.name}">Tên danh mục</h2>
+                        <h2 th:if="${selectedCategory == null and keyword != null}" th:text="'Kết quả tìm kiếm cho: ' + ${keyword}">Kết quả tìm kiếm</h2>
+                        <h2 th:if="${selectedCategory == null and keyword == null}">Tất cả sản phẩm</h2>
+                        
+                        <p class="text-muted mb-0" th:if="${productPage != null}">
+                            Hiển thị 
+                            <span th:text="${productPage.numberOfElements}">0</span> 
+                            trong tổng số 
+                            <span th:text="${productPage.totalElements}">0</span> 
+                            sản phẩm
+                        </p>
+                    </div>
+                    
+                    <!-- Sort Options -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-sort me-2"></i>Sắp xếp theo
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/products(sort='name',direction='asc',page=${currentPage},size=${pageSize},categoryId=${selectedCategory?.id},keyword=${keyword})}">
+                                Tên (A-Z)
+                            </a></li>
+                            <li><a class="dropdown-item" th:href="@{/products(sort='name',direction='desc',page=${currentPage},size=${pageSize},categoryId=${selectedCategory?.id},keyword=${keyword})}">
+                                Tên (Z-A)
+                            </a></li>                            <li><a class="dropdown-item" th:href="@{/products(sort='price',direction='asc',page=${currentPage},size=${pageSize},categoryId=${selectedCategory?.id},keyword=${keyword})}">
+                                Giá (Thấp đến Cao)
+                            </a></li>
+                            <li><a class="dropdown-item" th:href="@{/products(sort='price',direction='desc',page=${currentPage},size=${pageSize},categoryId=${selectedCategory?.id},keyword=${keyword})}">
+                                Giá (Cao đến Thấp)
+                            </a></li>
+                            <li><a class="dropdown-item" th:href="@{/products(sort='createdAt',direction='desc',page=${currentPage},size=${pageSize},categoryId=${selectedCategory?.id},keyword=${keyword})}">
+                                Mới nhất
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                  <!-- Products Grid -->
+                <div class="row" th:if="${productPage != null and !productPage.isEmpty()}">
+                    <div class="col-lg-4 col-md-6 mb-4" th:each="product : ${productPage.content}">
+                        <div th:replace="~{fragments/product-card :: product-card(${product})}"></div>
+                    </div>
+                </div>
+                  <!-- No Products Found -->
+                <div th:if="${productPage == null or productPage.isEmpty()}" class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Không tìm thấy sản phẩm</h4>
+                    <p class="text-muted">Hãy thử điều chỉnh tiêu chí tìm kiếm hoặc xem tất cả sản phẩm.</p>
+                    <a href="/products" th:href="@{/products}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> Xem tất cả sản phẩm
+                    </a>
+                </div>
+                
+                <!-- Pagination -->
+                <nav th:if="${productPage != null and productPage.totalPages > 1}" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous -->
+                        <li class="page-item" th:classappend="${productPage.first} ? 'disabled'">
+                            <a class="page-link" 
+                               th:href="@{/products(page=${productPage.number - 1},size=${pageSize},sort=${sortField},direction=${sortDirection},categoryId=${selectedCategory?.id},keyword=${keyword})}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        <!-- Page Numbers -->
+                        <li th:each="pageNum : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+                            class="page-item" th:classappend="${pageNum == productPage.number} ? 'active'">
+                            <a class="page-link" 
+                               th:href="@{/products(page=${pageNum},size=${pageSize},sort=${sortField},direction=${sortDirection},categoryId=${selectedCategory?.id},keyword=${keyword})}"
+                               th:text="${pageNum + 1}">1</a>
+                        </li>
+                        
+                        <!-- Next -->
+                        <li class="page-item" th:classappend="${productPage.last} ? 'disabled'">
+                            <a class="page-link" 
+                               th:href="@{/products(page=${productPage.number + 1},size=${pageSize},sort=${sortField},direction=${sortDirection},categoryId=${selectedCategory?.id},keyword=${keyword})}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/admin-layout :: head(title='Bảng điều khiển')}">
+    <title>Bảng điều khiển - Quản trị</title>
+</head>
+<body>
+    <!-- Admin Navigation -->
+    <nav th:replace="~{fragments/admin-layout :: admin-navbar}"></nav>
+    
+    <!-- Alert Messages -->
+    <div th:replace="~{fragments/admin-layout :: admin-alerts}"></div>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Admin Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div th:replace="~{fragments/admin-layout :: admin-sidebar}"></div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="admin-content">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-admin">
+                            <li class="breadcrumb-item active">
+                                <i class="fas fa-tachometer-alt me-1"></i>Tổng quan
+                            </li>
+                        </ol>
+                    </nav>
+                    
+                    <!-- Page Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="mb-1">Bảng điều khiển</h2>
+                            <p class="text-muted mb-0">Chào mừng trở lại, <span sec:authentication="name" class="fw-semibold"></span>!</p>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">Cập nhật lần cuối:</small><br>
+                            <span class="badge bg-primary" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">
+                                22/06/2025 15:30
+                            </span>
+                        </div>
+                    </div>
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-start border-primary border-4 shadow">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">Tổng số người dùng</div>
+                                        <div class="h5 mb-0 fw-bold text-gray-800" th:text="${totalUsers}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-start border-success border-4 shadow">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs fw-bold text-success text-uppercase mb-1">Tổng số sản phẩm</div>
+                                        <div class="h5 mb-0 fw-bold text-gray-800" th:text="${totalProducts}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-box fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-start border-info border-4 shadow">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs fw-bold text-info text-uppercase mb-1">Đơn hàng đang chờ</div>
+                                        <div class="h5 mb-0 fw-bold text-gray-800" th:text="${pendingOrders}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-start border-warning border-4 shadow">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">Doanh thu tháng này</div>
+                                        <div class="h5 mb-0 fw-bold text-gray-800" th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 2, 'POINT')}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quick Stats Row -->
+                <div class="row mb-4">
+                    <div class="col-xl-4 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="mb-0">Trạng thái đơn hàng</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Đã xác nhận <span class="badge bg-info" th:text="${confirmedOrders}">0</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Đã giao hàng <span class="badge bg-success" th:text="${shippedOrders}">0</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Đã nhận hàng <span class="badge bg-primary" th:text="${deliveredOrders}">0</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Đã hủy <span class="badge bg-danger" th:text="${cancelledOrders}">0</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="mb-0">Sản phẩm tồn kho thấp (&lt; 10)</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item" th:each="product : ${lowStockProducts}" th:text="${product.name} + ' (' + product.stockQuantity + ')'">Không có sản phẩm tồn kho thấp</li>
+                                    <li class="list-group-item" th:if="${lowStockProducts == null || #lists.isEmpty(lowStockProducts)}">Không có sản phẩm tồn kho thấp</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="mb-0">Đơn hàng gần đây</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item" th:each="order : ${recentOrders}">
+                                        <span th:text="'Đơn hàng #' + ${order.id}"></span> -
+                                        <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}"></span> -
+                                        <span th:text="${order.user.fullName}"></span>
+                                    </li>
+                                    <li class="list-group-item" th:if="${recentOrders == null || #lists.isEmpty(recentOrders)}">Không có đơn hàng gần đây</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    <footer th:replace="~{fragments/admin-layout :: admin-footer}"></footer>
+    <div th:replace="~{fragments/admin-layout :: admin-scripts}"></div>
+</body>
+</html>

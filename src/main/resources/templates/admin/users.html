@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head(title='Quản lý người dùng')}">
+    <title>Quản trị - Người dùng</title>
+</head>
+<body>
+<nav th:replace="~{fragments/admin-layout :: admin-navbar}"></nav>
+<div th:replace="~{fragments/admin-layout :: admin-alerts}"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-lg-2 px-0">
+            <div th:replace="~{fragments/admin-layout :: admin-sidebar}"></div>
+        </div>
+        <div class="col-md-9 col-lg-10">
+            <div class="admin-content">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-admin">
+                        <li class="breadcrumb-item">
+                            <a href="/admin" th:href="@{/admin}">Tổng quan</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            <i class="fas fa-users me-1"></i>Quản lý người dùng
+                        </li>
+                    </ol>
+                </nav>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Quản lý người dùng</h2>
+                    <a class="btn btn-primary" th:href="@{/admin/users/new}">
+                        <i class="fas fa-user-plus me-2"></i>Thêm người dùng
+                    </a>
+
+                </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Tên đăng nhập</th>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user, iterStat : ${users}">
+                            <td th:text="${iterStat.index + 1}"></td>
+                            <td th:text="${user.username}"></td>
+                            <td th:text="${user.fullName}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td th:text="${user.role}"></td>
+                            <td>
+                                <span th:if="${user.enabled}" class="badge bg-success">Kích hoạt</span>
+                                <span th:if="${!user.enabled}" class="badge bg-danger">Vô hiệu hóa</span>
+                            </td>
+                            <td>
+                                <form th:action="@{/admin/users/{id}/toggle-status(id=${user.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm" th:classappend="${user.enabled} ? 'btn-danger' : 'btn-success'">
+                                        <i th:class="${user.enabled} ? 'fas fa-user-slash' : 'fas fa-user-check'"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirmDelete('Bạn có chắc chắn muốn xóa người dùng này?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>                </div>
+            
+            </div>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{fragments/admin-layout :: admin-footer}"></footer>
+<div th:replace="~{fragments/admin-layout :: admin-scripts}"></div>
+</body>
+</html>

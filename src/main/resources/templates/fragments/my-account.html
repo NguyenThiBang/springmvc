@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tài khoản của tôi')}"></head>
+<body>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+    <div class="container mt-4">
+
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <h3 class="mb-4">Quản lý tài khoản của tôi</h3>
+
+        <!-- Form cập nhật thông tin -->
+        <form th:action="@{/account/update}" th:object="${user}" method="post" class="mb-4">
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" th:field="*{fullName}" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" th:field="*{phone}" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" th:field="*{address}" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+        </form>
+
+        
+<a th:href="@{/account/change-password}" class="btn btn-warning">
+    Đổi mật khẩu
+</a>
+
+
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

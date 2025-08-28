@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<!-- Head fragment -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title != null ? title + ' - Cửa hàng Máy tính' : 'Cửa hàng Máy tính'}">Cửa hàng Máy tính</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    
+    <style>
+        /* Custom navbar styles */
+        .navbar-nav .nav-item .btn {
+            border-width: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-nav .nav-item .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .dropdown-menu {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dropdown-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dropdown-header {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .nav-link.dropdown-toggle::after {
+            margin-left: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-nav .nav-item .btn {
+                margin: 2px 0;
+                display: block;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar fragment -->
+    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-laptop-code me-2"></i>Cửa Hàng Máy Tính
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/products}">Sản phẩm</a>
+                    </li>
+                </ul>
+                
+                <form class="d-flex me-3" th:action="@{/search}" method="get">
+                    <input class="form-control me-2" type="search" name="keyword" placeholder="Tìm kiếm..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
+                </form>
+
+                <ul class="navbar-nav">
+                    <!-- Debug info (remove in production) -->
+                    <li class="nav-item">
+                        <span class="nav-link small text-warning">
+                            Auth: <span th:text="${isAuthenticated ? 'YES' : 'NO'}">-</span>
+                            | User: <span th:text="${currentUsername ?: '-'}">-</span>
+                        </span>
+                    </li>
+                    
+                    <!-- Cart Icon - Only for authenticated users -->
+                    <li class="nav-item me-2" th:if="${isAuthenticated}">
+                        <a class="nav-link position-relative" th:href="@{/cart}" title="Giỏ hàng">
+                            <i class="fas fa-shopping-cart fs-5"></i>
+                            <span th:if="${cartItemCount != null and cartItemCount > 0}" 
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                  th:text="${cartItemCount}">
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- User Dropdown - Only for authenticated users -->
+                    <li class="nav-item dropdown" th:if="${isAuthenticated}">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-2 fs-5"></i>
+                            <span class="d-none d-md-inline">Xin chào, </span>
+                            <span class="fw-bold" th:text="${currentUsername}">Người dùng</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="navbarDropdown" style="min-width: 220px;">
+                            <li>
+                                <div class="dropdown-header bg-light rounded-top">
+                                    <i class="fas fa-user me-2 text-primary" th:href="@{/account}"></i>
+                                    <strong>Tài khoản của tôi</strong>
+                                </div>
+                            </li>
+                            <li>
+    <a class="dropdown-item py-2 d-flex align-items-center" th:href="@{/account}">
+        <i class="fas fa-user me-2 text-primary"></i>
+        <span>Tài khoản của tôi</span>
+    </a>
+</li>
+
+                            <li><a class="dropdown-item py-2" th:href="@{/orders}">
+                                <i class="fas fa-shopping-bag me-2 text-success"></i>Đơn hàng của tôi
+                            </a></li>
+                            
+                            <!-- Admin section - Only for admins -->
+                            <div th:if="${isAdmin}">
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <div class="dropdown-header">
+                                        <i class="fas fa-cogs me-2 text-warning"></i>
+                                        <strong>Quản trị</strong>
+                                    </div>
+                                </li>
+                                <li><a class="dropdown-item py-2" th:href="@{/admin}">
+                                    <i class="fas fa-tachometer-alt me-2 text-primary"></i>Trang Quản Trị
+                                </a></li>
+                            </div>
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline w-100">
+                                    <button type="submit" class="dropdown-item text-danger py-2 fw-bold">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Login/Register buttons - Only for non-authenticated users -->
+                    <li class="nav-item me-1" th:if="${!isAuthenticated}">
+                        <a class="nav-link btn btn-outline-light rounded-pill px-3" th:href="@{/login}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                        </a>
+                    </li>
+                    <li class="nav-item" th:if="${!isAuthenticated}">
+                        <a class="nav-link btn btn-primary rounded-pill px-3 ms-1" th:href="@{/register}">
+                            <i class="fas fa-user-plus me-1"></i>Đăng ký
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alerts fragment -->
+    <div th:fragment="alerts" class="container mt-3">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Footer fragment -->
+    <footer th:fragment="footer" class="bg-dark text-white pt-5 pb-4 mt-5">
+        <div class="container text-center text-md-start">
+            <div class="row">
+                <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                    <h6 class="text-uppercase fw-bold mb-4">
+                        <i class="fas fa-laptop-code me-3"></i>Cửa hàng Máy tính
+                    </h6>
+                    <p>
+                        Nhà cung cấp hàng đầu về máy tính, linh kiện và các giải pháp công nghệ.
+                    </p>
+                </div>
+
+                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                    <h6 class="text-uppercase fw-bold mb-4">Sản phẩm</h6>
+                    <p><a th:href="@{/products(category='Laptop')}" class="text-reset">Laptop</a></p>
+                    <p><a th:href="@{/products(category='PC')}" class="text-reset">PC Gaming</a></p>
+                    <p><a th:href="@{/products(category='Component')}" class="text-reset">Linh kiện</a></p>
+                </div>
+
+                <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                    <h6 class="text-uppercase fw-bold mb-4">Hỗ trợ khách hàng</h6>
+                    <p><a href="#!" class="text-reset">Chính sách bảo hành</a></p>
+                    <p><a href="#!" class="text-reset">Chính sách đổi trả</a></p>
+                    <p><a href="#!" class="text-reset">Hướng dẫn thanh toán</a></p>
+                </div>
+
+                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                    <h6 class="text-uppercase fw-bold mb-4">Liên hệ</h6>
+                    <p><i class="fas fa-home me-3"></i> 123 Nguyễn Văn Linh, Hải Châu, Đà Nẵng</p>
+                    <p><i class="fas fa-envelope me-3"></i> info@email.com</p>
+                    <p><i class="fas fa-phone me-3"></i> + 84 234 567 88</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+            © 2024 Copyright:
+            <a class="text-reset fw-bold" th:href="@{/}">ComputerStore.com</a>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script th:fragment="scripts" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

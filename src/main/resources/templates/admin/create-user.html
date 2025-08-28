@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head(title='Thêm người dùng')}">
+    <title>Thêm người dùng</title>
+</head>
+<body>
+<nav th:replace="~{fragments/admin-layout :: admin-navbar}"></nav>
+
+<div class="container mt-4">
+    <h2>Thêm người dùng</h2>
+    <form th:action="@{/admin/users/new}" th:object="${user}" method="post" class="mt-3">
+        <div class="mb-3">
+            <label class="form-label">Tên đăng nhập</label>
+            <input type="text" class="form-control" th:field="*{username}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu</label>
+            <input type="password" class="form-control" th:field="*{password}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Họ tên</label>
+            <input type="text" class="form-control" th:field="*{fullName}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" th:field="*{email}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Vai trò</label>
+            <select class="form-select" th:field="*{role}">
+                <option th:value="ADMIN">ADMIN</option>
+                <option th:value="CUSTOMER">CUSTOMER</option>
+            </select>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" th:field="*{enabled}">
+            <label class="form-check-label">Kích hoạt</label>
+        </div>
+        <button type="submit" class="btn btn-success">Lưu</button>
+        <a th:href="@{/admin/users}" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+
+<footer th:replace="~{fragments/admin-layout :: admin-footer}"></footer>
+</body>
+</html>
